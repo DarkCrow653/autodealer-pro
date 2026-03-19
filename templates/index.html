@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}AutoDealer Pro — Encuentra tu auto ideal{% endblock %}
+
+{% block contenido %}
+
+<!-- ========== HERO ========== -->
+<section class="hero-section">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+
+    <div class="hero-eyebrow">
+      <i class="fa fa-star" style="font-size:10px;"></i>
+      Concesionaria Premium · Calidad Garantizada
+    </div>
+
+    <h1 class="hero-title">
+      Tu próximo<br>
+      auto te <span class="accent">espera</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Explora nuestra selección de vehículos de alta calidad.
+      Cada auto es cuidadosamente inspeccionado para garantizar
+      la mejor experiencia de manejo.
+    </p>
+
+    <div class="hero-actions">
+      <a href="/catalogo" class="btn btn-gold">
+        <i class="fa fa-th-large"></i>
+        Ver catálogo completo
+      </a>
+      <a href="/catalogo?combustible=Eléctrico" class="btn btn-outline">
+        <i class="fa fa-bolt"></i>
+        Autos eléctricos
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-num">{{ total_autos }}</div>
+        <div class="hero-stat-label">Vehículos disponibles</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">{{ total_marcas }}</div>
+        <div class="hero-stat-label">Marcas en catálogo</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-label">Inspección garantizada</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">24h</div>
+        <div class="hero-stat-label">Respuesta al cliente</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+{% if destacados %}
+<!-- ========== AUTOS DESTACADOS ========== -->
+<section class="section">
+
+  <div class="section-header">
+    <div>
+      <div class="section-tag">★ Selección premium</div>
+      <h2 class="section-title">Autos Destacados</h2>
+      <div class="section-divider"></div>
+    </div>
+    <a href="/catalogo" class="btn btn-outline btn-sm">
+      Ver todos <i class="fa fa-arrow-right" style="font-size:11px;"></i>
+    </a>
+  </div>
+
+  <div class="autos-grid">
+    {% for auto in destacados %}
+    <article class="card-auto">
+      <div class="car-img-wrap">
+        {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+          <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+               alt="{{ auto['marca'] }} {{ auto['modelo'] }}"
+               loading="lazy">
+        {% else %}
+          <div style="width:100%;height:100%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:52px;opacity:0.3;">🚗</span>
+          </div>
+        {% endif %}
+        <span class="badge-destacado">★ Destacado</span>
+        {% if auto['combustible'] == 'Eléctrico' %}
+          <span class="badge-tipo">⚡ Eléctrico</span>
+        {% elif auto['transmision'] %}
+          <span class="badge-tipo">{{ auto['transmision'] }}</span>
+        {% endif %}
+      </div>
+      <div class="card-body-auto">
+        <div class="card-brand">{{ auto['marca'] }}</div>
+        <h3 class="card-title-auto">{{ auto['modelo'] }}</h3>
+        {% if auto['anio'] or auto['kilometraje'] %}
+        <div class="card-specs">
+          {% if auto['anio'] %}
+          <span class="card-spec">
+            <i class="fa fa-calendar-alt"></i> {{ auto['anio'] }}
+          </span>
+          {% endif %}
+          {% if auto['kilometraje'] %}
+          <span class="card-spec">
+            <i class="fa fa-tachometer-alt"></i>
+            {{ "{:,}".format(auto['kilometraje']) }} km
+          </span>
+          {% endif %}
+          {% if auto['combustible'] %}
+          <span class="card-spec">
+            <i class="fa fa-gas-pump"></i> {{ auto['combustible'] }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="card-footer-auto">
+          <div class="card-price">
+            <span>$</span> {{ "{:,}".format(auto['precio']) }}
+          </div>
+          <a href="/auto/{{ auto['id'] }}" class="btn btn-gold btn-sm">
+            Ver auto
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+</section>
+{% endif %}
+
+
+<!-- ========== WHY US SECTION ========== -->
+<section style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section" style="padding:60px 24px;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="section-tag" style="display:block;">¿Por qué elegirnos?</div>
+      <h2 class="section-title">Compromiso con la excelencia</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;">
+
+      <div style="text-align:center;padding:28px;">
+        <div style="font-size:38px;margin-bottom:14px;">🔍</div>
+        <h3 style="font-family:'Exo 2',sans-serif;font-size:17px;margin-bottom:10px;">Inspección completa</h3>
+        <p style="color:var(--text-3);font-size:14px;line-height:1.6;">Cada vehículo pasa por una revisión de 150 puntos antes de entrar a nuestro inventario.</p>
+      </div>
+
+      <div style="text-align:center;padding:28px;">
+        <div style="font-size:38px;margin-bottom:14px;">💳</div>
+        <h3 style="font-family:'Exo 2',sans-serif;font-size:17px;margin-bottom:10px;">Financiamiento flexible</h3>
+        <p style="color:var(--text-3);font-size:14px;line-height:1.6;">Planes de pago adaptados a tus necesidades con las mejores tasas del mercado.</p>
+      </div>
+
+      <div style="text-align:center;padding:28px;">
+        <div style="font-size:38px;margin-bottom:14px;">🛡️</div>
+        <h3 style="font-family:'Exo 2',sans-serif;font-size:17px;margin-bottom:10px;">Garantía incluida</h3>
+        <p style="color:var(--text-3);font-size:14px;line-height:1.6;">Todos los autos incluyen garantía mínima de 6 meses en motor y transmisión.</p>
+      </div>
+
+      <div style="text-align:center;padding:28px;">
+        <div style="font-size:38px;margin-bottom:14px;">📋</div>
+        <h3 style="font-family:'Exo 2',sans-serif;font-size:17px;margin-bottom:10px;">Documentación en orden</h3>
+        <p style="color:var(--text-3);font-size:14px;line-height:1.6;">Verificamos y gestionamos toda la papelería para una compra sin sorpresas.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+{% if recientes %}
+<!-- ========== RECIÉN LLEGADOS ========== -->
+<section class="section">
+
+  <div class="section-header">
+    <div>
+      <div class="section-tag">🆕 Nuevos ingresos</div>
+      <h2 class="section-title">Recién llegados</h2>
+      <div class="section-divider"></div>
+    </div>
+  </div>
+
+  <div class="autos-grid">
+    {% for auto in recientes %}
+    <article class="card-auto">
+      <div class="car-img-wrap">
+        {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+          <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+               alt="{{ auto['marca'] }} {{ auto['modelo'] }}"
+               loading="lazy">
+        {% else %}
+          <div style="width:100%;height:100%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:52px;opacity:0.3;">🚗</span>
+          </div>
+        {% endif %}
+        <span class="badge-tipo" style="top:12px;right:12px;">Nuevo ingreso</span>
+      </div>
+      <div class="card-body-auto">
+        <div class="card-brand">{{ auto['marca'] }}</div>
+        <h3 class="card-title-auto">{{ auto['modelo'] }}</h3>
+        <div class="card-footer-auto">
+          <div class="card-price">
+            <span>$</span> {{ "{:,}".format(auto['precio']) }}
+          </div>
+          <a href="/auto/{{ auto['id'] }}" class="btn btn-outline btn-sm">Ver detalles</a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+</section>
+{% endif %}
+
+
+<!-- ========== CTA BANNER ========== -->
+<section style="background:linear-gradient(135deg,var(--surface),rgba(201,151,47,0.06));border-top:1px solid rgba(201,151,47,0.1);border-bottom:1px solid var(--border);">
+  <div class="section" style="padding:60px 24px;text-align:center;">
+    <h2 style="font-family:'Exo 2',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;margin-bottom:14px;">
+      ¿No encuentras lo que buscas?
+    </h2>
+    <p style="color:var(--text-2);font-size:16px;max-width:500px;margin:0 auto 32px;">
+      Visita nuestro catálogo completo o contáctanos y te ayudamos a encontrar el auto perfecto para ti.
+    </p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="/catalogo" class="btn btn-gold">
+        <i class="fa fa-search"></i> Explorar catálogo
+      </a>
+      <a href="tel:+525512345678" class="btn btn-outline">
+        <i class="fa fa-phone"></i> Llamar ahora
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

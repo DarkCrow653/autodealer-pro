@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo — AutoDealer Pro{% endblock %}
+
+{% block contenido %}
+
+<!-- ========== CATALOGO HEADER ========== -->
+<div class="catalogo-header">
+  <div class="section" style="padding:40px 24px 0;">
+
+    <div style="margin-bottom:8px;">
+      <a href="/" style="font-size:13px;color:var(--text-3);text-decoration:none;">
+        <i class="fa fa-home" style="margin-right:5px;"></i>Inicio
+      </a>
+      <span style="color:var(--text-3);margin:0 8px;">/</span>
+      <span style="font-size:13px;color:var(--gold);">Catálogo</span>
+    </div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+      <div>
+        <h1 style="font-family:'Exo 2',sans-serif;font-size:clamp(30px,4vw,44px);font-weight:800;letter-spacing:-0.5px;margin:0 0 6px;">
+          Vehículos disponibles
+        </h1>
+        <p style="color:var(--text-2);font-size:15px;margin:0;">
+          {% if buscar %}
+            Resultados para <strong style="color:var(--gold-light);">"{{ buscar }}"</strong> —
+          {% endif %}
+          <strong style="color:var(--text);">{{ total_resultados }}</strong> auto{{ 's' if total_resultados != 1 else '' }} encontrado{{ 's' if total_resultados != 1 else '' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <form method="GET" action="/catalogo">
+      {% if buscar %}
+        <input type="hidden" name="buscar" value="{{ buscar }}">
+      {% endif %}
+      <div class="filters-bar">
+        <span class="filter-label"><i class="fa fa-filter" style="margin-right:5px;"></i>Filtrar:</span>
+
+        <select name="combustible" class="filter-select" onchange="this.form.submit()">
+          <option value="">Combustible</option>
+          <option value="Gasolina" {{ 'selected' if combustible_filter == 'Gasolina' }}>Gasolina</option>
+          <option value="Diesel" {{ 'selected' if combustible_filter == 'Diesel' }}>Diesel</option>
+          <option value="Eléctrico" {{ 'selected' if combustible_filter == 'Eléctrico' }}>Eléctrico</option>
+        </select>
+
+        <select name="transmision" class="filter-select" onchange="this.form.submit()">
+          <option value="">Transmisión</option>
+          <option value="Manual" {{ 'selected' if transmision_filter == 'Manual' }}>Manual</option>
+          <option value="Automática" {{ 'selected' if transmision_filter == 'Automática' }}>Automática</option>
+        </select>
+
+        <select name="orden" class="filter-select" onchange="this.form.submit()">
+          <option value="reciente" {{ 'selected' if orden == 'reciente' }}>Más recientes</option>
+          <option value="precio_asc" {{ 'selected' if orden == 'precio_asc' }}>Menor precio</option>
+          <option value="precio_desc" {{ 'selected' if orden == 'precio_desc' }}>Mayor precio</option>
+          <option value="anio_desc" {{ 'selected' if orden == 'anio_desc' }}>Año más nuevo</option>
+        </select>
+
+        {% if combustible_filter or transmision_filter or buscar %}
+        <a href="/catalogo" style="font-size:12px;color:var(--danger);font-weight:600;margin-left:6px;text-decoration:none;">
+          <i class="fa fa-times" style="margin-right:4px;"></i>Limpiar filtros
+        </a>
+        {% endif %}
+
+        <div class="search-count">
+          <strong>{{ total_resultados }}</strong> resultado{{ 's' if total_resultados != 1 else '' }}
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+
+<div class="section" style="padding-top:28px;">
+
+  <!-- ========== FEATURED STRIP ========== -->
+  {% if destacados and not buscar and not combustible_filter %}
+  <div class="featured-strip">
+    <div class="featured-strip-header">
+      <span class="featured-strip-icon">⭐</span>
+      <h3>Selección destacada</h3>
+      <span style="font-size:12px;color:var(--text-3);margin-left:auto;">Los mejores de nuestro inventario</span>
+    </div>
+    <div class="featured-scroll">
+      {% for auto in destacados %}
+      <a href="/auto/{{ auto['id'] }}" class="featured-mini-card" style="text-decoration:none;">
+        {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+          <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+               alt="{{ auto['marca'] }} {{ auto['modelo'] }}"
+               loading="lazy">
+        {% else %}
+          <div style="width:100%;height:120px;background:var(--surface);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:36px;opacity:0.3;">🚗</span>
+          </div>
+        {% endif %}
+        <div class="featured-mini-info">
+          <div class="mini-brand">{{ auto['marca'] }}</div>
+          <div class="mini-model">{{ auto['modelo'] }}</div>
+          <div class="mini-price">${{ "{:,}".format(auto['precio']) }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- ========== AUTOS GRID ========== -->
+  {% if autos %}
+  <div class="autos-grid">
+    {% for auto in autos %}
+    <article class="card-auto">
+      <div class="car-img-wrap">
+        {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+          <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+               alt="{{ auto['marca'] }} {{ auto['modelo'] }}"
+               loading="lazy">
+        {% else %}
+          <div style="width:100%;height:100%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:52px;opacity:0.3;">🚗</span>
+          </div>
+        {% endif %}
+        {% if auto['destacado'] %}
+          <span class="badge-destacado">★ Destacado</span>
+        {% endif %}
+        {% if auto['combustible'] %}
+          {% if auto['combustible'] == 'Eléctrico' %}
+            <span class="badge-tipo" style="{{ '' if not auto['destacado'] else 'top:40px;' }}">⚡ Eléctrico</span>
+          {% elif auto['transmision'] %}
+            <span class="badge-tipo" style="{{ '' if not auto['destacado'] else 'top:40px;' }}">{{ auto['transmision'] }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="card-body-auto">
+        <div class="card-brand">{{ auto['marca'] }}</div>
+        <h3 class="card-title-auto">{{ auto['modelo'] }}</h3>
+        {% if auto['anio'] or auto['kilometraje'] or auto['combustible'] %}
+        <div class="card-specs">
+          {% if auto['anio'] %}
+          <span class="card-spec">
+            <i class="fa fa-calendar-alt"></i> {{ auto['anio'] }}
+          </span>
+          {% endif %}
+          {% if auto['kilometraje'] %}
+          <span class="card-spec">
+            <i class="fa fa-tachometer-alt"></i> {{ "{:,}".format(auto['kilometraje']) }} km
+          </span>
+          {% endif %}
+          {% if auto['combustible'] and auto['combustible'] != 'Eléctrico' %}
+          <span class="card-spec">
+            <i class="fa fa-gas-pump"></i> {{ auto['combustible'] }}
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="card-footer-auto">
+          <div class="card-price">
+            <span>$</span> {{ "{:,}".format(auto['precio']) }}
+          </div>
+          <a href="/auto/{{ auto['id'] }}" class="btn btn-gold btn-sm">
+            Ver auto
+          </a>
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>No se encontraron resultados</h3>
+    <p style="font-size:14px;margin-bottom:20px;">Intenta con otros términos o elimina los filtros activos.</p>
+    <a href="/catalogo" class="btn btn-gold btn-sm">Ver todo el catálogo</a>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

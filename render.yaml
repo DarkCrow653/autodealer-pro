@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: autodealer-pro
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true   # Render genera un valor seguro automáticamente
+    plan: free

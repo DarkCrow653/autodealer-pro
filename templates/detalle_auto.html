@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ auto['marca'] }} {{ auto['modelo'] }} — AutoDealer Pro{% endblock %}
+
+{% block contenido %}
+
+<div class="detail-wrap">
+
+  <!-- Breadcrumb -->
+  <a href="/catalogo" class="back-btn">
+    <i class="fa fa-arrow-left"></i>
+    Volver al catálogo
+  </a>
+
+  <div class="detail-grid">
+
+    <!-- Image -->
+    <div>
+      {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+        <img
+          src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+          alt="{{ auto['marca'] }} {{ auto['modelo'] }}"
+          class="detail-img-main">
+      {% else %}
+        <div class="detail-img-main" style="background:var(--surface-2);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:80px;opacity:0.3;">🚗</span>
+        </div>
+      {% endif %}
+
+      {% if auto['destacado'] %}
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(201,151,47,0.25);border-radius:8px;padding:10px 16px;">
+        <span style="color:var(--gold-light);font-size:18px;">★</span>
+        <span style="font-family:'Exo 2',sans-serif;font-size:13px;font-weight:700;color:var(--gold-light);">
+          Vehículo destacado — Selección premium de AutoDealer
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div>
+      <div class="detail-brand">{{ auto['marca'] }}</div>
+      <h1 class="detail-title">{{ auto['modelo'] }}</h1>
+      <div class="detail-price">
+        <span>$</span>{{ "{:,}".format(auto['precio']) }}
+        <span style="font-size:15px;margin-left:4px;">MXN</span>
+      </div>
+
+      <!-- Specs Grid -->
+      <div class="specs-grid">
+
+        <div class="spec-item">
+          <span class="spec-icon">📅</span>
+          <div class="spec-info">
+            <div class="spec-label">Año</div>
+            <div class="spec-value">{{ auto['anio'] or 'N/D' }}</div>
+          </div>
+        </div>
+
+        <div class="spec-item">
+          <span class="spec-icon">🛣️</span>
+          <div class="spec-info">
+            <div class="spec-label">Kilometraje</div>
+            <div class="spec-value">
+              {% if auto['kilometraje'] %}
+                {{ "{:,}".format(auto['kilometraje']) }} km
+              {% else %}N/D{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-item">
+          <span class="spec-icon">⛽</span>
+          <div class="spec-info">
+            <div class="spec-label">Combustible</div>
+            <div class="spec-value">{{ auto['combustible'] or 'N/D' }}</div>
+          </div>
+        </div>
+
+        <div class="spec-item">
+          <span class="spec-icon">⚙️</span>
+          <div class="spec-info">
+            <div class="spec-label">Transmisión</div>
+            <div class="spec-value">{{ auto['transmision'] or 'N/D' }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      {% if auto['descripcion'] %}
+      <p class="detail-desc">{{ auto['descripcion'] }}</p>
+      {% endif %}
+
+      <div class="detail-actions">
+        <a href="tel:+525512345678" class="btn btn-gold">
+          <i class="fa fa-phone"></i>
+          Consultar precio
+        </a>
+        <a href="https://wa.me/525512345678?text=Hola, me interesa el {{ auto['marca'] }} {{ auto['modelo'] }} de ${{ auto['precio'] }}"
+           target="_blank"
+           class="btn btn-outline">
+          <i class="fab fa-whatsapp"></i>
+          WhatsApp
+        </a>
+      </div>
+
+      <!-- Features List -->
+      <div style="margin-top:24px;padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);">
+            <i class="fa fa-check-circle" style="color:var(--success);"></i>
+            Documentos verificados
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);">
+            <i class="fa fa-check-circle" style="color:var(--success);"></i>
+            Garantía incluida
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);">
+            <i class="fa fa-check-circle" style="color:var(--success);"></i>
+            Financiamiento disponible
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+{% if relacionados %}
+<!-- ========== RELATED CARS ========== -->
+<section class="related-section">
+  <div class="section">
+    <div class="section-header" style="margin-bottom:32px;">
+      <div>
+        <div class="section-tag">Misma marca</div>
+        <h2 class="section-title">También podría interesarte</h2>
+        <div class="section-divider"></div>
+      </div>
+    </div>
+
+    <div class="autos-grid">
+      {% for rel in relacionados %}
+      <article class="card-auto">
+        <div class="car-img-wrap">
+          {% if rel['imagen'] and rel['imagen'] != 'default.jpg' %}
+            <img src="{{ url_for('static', filename='img/autos/' + rel['imagen']) }}"
+                 alt="{{ rel['marca'] }} {{ rel['modelo'] }}"
+                 loading="lazy">
+          {% else %}
+            <div style="width:100%;height:100%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:52px;opacity:0.3;">🚗</span>
+            </div>
+          {% endif %}
+          {% if rel['destacado'] %}
+            <span class="badge-destacado">★ Destacado</span>
+          {% endif %}
+        </div>
+        <div class="card-body-auto">
+          <div class="card-brand">{{ rel['marca'] }}</div>
+          <h3 class="card-title-auto">{{ rel['modelo'] }}</h3>
+          <div class="card-footer-auto">
+            <div class="card-price"><span>$</span> {{ "{:,}".format(rel['precio']) }}</div>
+            <a href="/auto/{{ rel['id'] }}" class="btn btn-gold btn-sm">Ver auto</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

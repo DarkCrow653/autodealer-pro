@@ -1,0 +1,367 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard — AutoDealer Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block contenido %}
+
+<!-- ========== KPI CARDS ========== -->
+<div class="kpi-grid">
+
+  <div class="kpi-card" style="--kpi-color: var(--gold); --kpi-bg: var(--gold-dim);">
+    <div class="kpi-icon"><i class="fa fa-car"></i></div>
+    <div class="kpi-num">{{ total_autos }}</div>
+    <div class="kpi-label">Total de autos</div>
+    <div class="kpi-sub">En inventario activo</div>
+  </div>
+
+  <div class="kpi-card" style="--kpi-color: #e8b84b; --kpi-bg: rgba(232,184,75,0.12);">
+    <div class="kpi-icon"><i class="fa fa-star"></i></div>
+    <div class="kpi-num">{{ total_destacados }}</div>
+    <div class="kpi-label">Autos destacados</div>
+    <div class="kpi-sub">
+      {{ "%.0f"|format((total_destacados / total_autos * 100) if total_autos > 0 else 0) }}%
+      del inventario
+    </div>
+  </div>
+
+  <div class="kpi-card" style="--kpi-color: var(--success); --kpi-bg: rgba(16,185,129,0.12);">
+    <div class="kpi-icon"><i class="fa fa-dollar-sign"></i></div>
+    <div class="kpi-num" style="font-size:24px;">
+      ${{ "{:,}".format(avg_precio) }}
+    </div>
+    <div class="kpi-label">Precio promedio</div>
+    <div class="kpi-sub">
+      Min: ${{ "{:,}".format(precio_min) }} — Max: ${{ "{:,}".format(precio_max) }}
+    </div>
+  </div>
+
+  <div class="kpi-card" style="--kpi-color: var(--accent); --kpi-bg: var(--accent-dim);">
+    <div class="kpi-icon"><i class="fa fa-tags"></i></div>
+    <div class="kpi-num">{{ total_marcas }}</div>
+    <div class="kpi-label">Marcas distintas</div>
+    <div class="kpi-sub">Variedad en catálogo</div>
+  </div>
+
+</div>
+
+
+<!-- ========== CHARTS ========== -->
+{% if total_autos > 0 %}
+<div class="charts-grid">
+
+  <!-- Bar chart: autos por marca -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-card-title">Inventario por marca</h3>
+        <div class="chart-card-subtitle">Distribución de vehículos</div>
+      </div>
+    </div>
+    <div class="chart-container" style="height:220px;">
+      <canvas id="chartMarcas"></canvas>
+    </div>
+  </div>
+
+  <!-- Donut: combustible -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-card-title">Tipo combustible</h3>
+        <div class="chart-card-subtitle">Distribución %</div>
+      </div>
+    </div>
+    <div class="chart-container" style="height:220px;">
+      <canvas id="chartCombustible"></canvas>
+    </div>
+  </div>
+
+  <!-- Donut: transmisión -->
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-card-title">Transmisión</h3>
+        <div class="chart-card-subtitle">Manual vs Automática</div>
+      </div>
+    </div>
+    <div class="chart-container" style="height:220px;">
+      <canvas id="chartTransmision"></canvas>
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- ========== INVENTORY TABLE ========== -->
+<div class="table-card">
+
+  <div class="table-card-header">
+    <h3 class="table-card-title">
+      <i class="fa fa-list" style="margin-right:8px;color:var(--gold);"></i>
+      Inventario completo
+    </h3>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <input
+        type="text"
+        id="tableSearch"
+        class="table-search"
+        placeholder="🔍  Buscar en tabla..."
+        oninput="filterTable(this.value)">
+      <a href="/agregar" class="btn btn-gold btn-sm">
+        <i class="fa fa-plus"></i> Agregar auto
+      </a>
+    </div>
+  </div>
+
+  {% if autos %}
+  <div style="overflow-x:auto;">
+    <table class="admin-table" id="inventoryTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Imagen</th>
+          <th>Vehículo</th>
+          <th>Año</th>
+          <th>Precio</th>
+          <th>Km</th>
+          <th>Combustible</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        {% for auto in autos %}
+        <tr>
+          <td style="color:var(--text-3);font-family:'Exo 2',sans-serif;font-weight:600;">
+            #{{ auto['id'] }}
+          </td>
+          <td>
+            {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+              <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+                   class="table-car-img"
+                   alt="{{ auto['marca'] }}">
+            {% else %}
+              <div class="table-car-img" style="display:flex;align-items:center;justify-content:center;background:var(--surface-2);">
+                <span style="font-size:22px;opacity:0.4;">🚗</span>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-car-brand">{{ auto['marca'] }}</div>
+            <div class="table-car-name">{{ auto['modelo'] }}</div>
+          </td>
+          <td style="font-family:'Exo 2',sans-serif;font-weight:700;">
+            {{ auto['anio'] or '—' }}
+          </td>
+          <td>
+            <div class="table-price">${{ "{:,}".format(auto['precio']) }}</div>
+          </td>
+          <td style="color:var(--text-2);">
+            {% if auto['kilometraje'] %}
+              {{ "{:,}".format(auto['kilometraje']) }} km
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if auto['combustible'] %}
+              <span class="badge-fuel badge-{{ auto['combustible']|lower|replace('é','e') }}">
+                {% if auto['combustible'] == 'Eléctrico' %}⚡{% elif auto['combustible'] == 'Diesel' %}⛽{% else %}🔴{% endif %}
+                {{ auto['combustible'] }}
+              </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if auto['destacado'] %}
+              <span class="badge-destacado-row">★ Destacado</span>
+            {% else %}
+              <span class="badge-normal-row">Normal</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-actions">
+              <a href="/editar/{{ auto['id'] }}" class="btn btn-edit-sm" title="Editar">
+                <i class="fa fa-pen"></i>
+              </a>
+              <a href="/destacar/{{ auto['id'] }}" class="btn btn-star-sm {{ 'active' if auto['destacado'] }}" title="Destacar">
+                <i class="fa fa-star"></i>
+              </a>
+              <a href="/borrar/{{ auto['id'] }}"
+                 class="btn btn-danger-sm"
+                 title="Eliminar"
+                 onclick="return confirm('¿Eliminar {{ auto['marca'] }} {{ auto['modelo'] }}? Esta acción no se puede deshacer.')">
+                <i class="fa fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🚗</div>
+    <h3>No hay autos en el inventario</h3>
+    <p>Comienza agregando tu primer vehículo.</p>
+    <a href="/agregar" class="btn btn-gold btn-sm" style="margin-top:12px;">
+      <i class="fa fa-plus"></i> Agregar primer auto
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+/* ============================================================
+   Inject Python data → JavaScript for Chart.js
+   ============================================================ */
+const marcasLabels = {{ marcas_data | map(attribute='marca') | list | tojson }};
+const marcasCounts = {{ marcas_data | map(attribute='count') | list | tojson }};
+
+const combustibleLabels = {{ combustible_data | map(attribute='combustible') | list | tojson }};
+const combustibleCounts = {{ combustible_data | map(attribute='count') | list | tojson }};
+
+const transmisionLabels = {{ transmision_data | map(attribute='transmision') | list | tojson }};
+const transmisionCounts = {{ transmision_data | map(attribute='count') | list | tojson }};
+
+/* ---- Chart.js global defaults ---- */
+Chart.defaults.color = '#8892a4';
+Chart.defaults.font.family = "'Barlow', sans-serif";
+
+const chartColors = [
+  '#c9972f', '#3b7de8', '#10b981', '#e8b84b',
+  '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'
+];
+
+/* ---- Bar: Marcas ---- */
+if (marcasLabels.length > 0) {
+  new Chart(document.getElementById('chartMarcas'), {
+    type: 'bar',
+    data: {
+      labels: marcasLabels,
+      datasets: [{
+        label: 'Autos',
+        data: marcasCounts,
+        backgroundColor: marcasLabels.map((_, i) => chartColors[i % chartColors.length] + '99'),
+        borderColor:     marcasLabels.map((_, i) => chartColors[i % chartColors.length]),
+        borderWidth: 1,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1c2035',
+          titleColor: '#eef0f5',
+          bodyColor: '#9aa3b8',
+          borderColor: 'rgba(255,255,255,0.07)',
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { font: { size: 11 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { stepSize: 1, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+/* ---- Donut: Combustible ---- */
+if (combustibleLabels.length > 0) {
+  new Chart(document.getElementById('chartCombustible'), {
+    type: 'doughnut',
+    data: {
+      labels: combustibleLabels,
+      datasets: [{
+        data: combustibleCounts,
+        backgroundColor: ['#3b7de8cc', '#10b981cc', '#f59e0bcc'],
+        borderColor:     ['#3b7de8',   '#10b981',   '#f59e0b'],
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 16, font: { size: 12 }, boxWidth: 12, borderRadius: 4 }
+        },
+        tooltip: {
+          backgroundColor: '#1c2035',
+          titleColor: '#eef0f5',
+          bodyColor: '#9aa3b8',
+          borderColor: 'rgba(255,255,255,0.07)',
+          borderWidth: 1,
+        }
+      }
+    }
+  });
+}
+
+/* ---- Donut: Transmisión ---- */
+if (transmisionLabels.length > 0) {
+  new Chart(document.getElementById('chartTransmision'), {
+    type: 'doughnut',
+    data: {
+      labels: transmisionLabels,
+      datasets: [{
+        data: transmisionCounts,
+        backgroundColor: ['#c9972fcc', '#6366f1cc'],
+        borderColor:     ['#c9972f',   '#6366f1'],
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { padding: 16, font: { size: 12 }, boxWidth: 12, borderRadius: 4 }
+        },
+        tooltip: {
+          backgroundColor: '#1c2035',
+          titleColor: '#eef0f5',
+          bodyColor: '#9aa3b8',
+          borderColor: 'rgba(255,255,255,0.07)',
+          borderWidth: 1,
+        }
+      }
+    }
+  });
+}
+
+/* ---- Table Search ---- */
+function filterTable(query) {
+  const rows = document.querySelectorAll('#tableBody tr');
+  const q = query.toLowerCase();
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

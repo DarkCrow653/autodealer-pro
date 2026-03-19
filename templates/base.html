@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AutoDealer Pro{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar-main">
+  <div class="navbar-inner">
+
+    <a href="/" class="navbar-brand">
+  <img src="/static/img/logo.png"
+       style="height:80px; width:auto; object-fit:contain;">
+  <span class="brand-text">Auto<em>Dealer</em></span>
+</a>
+
+    <ul class="navbar-nav">
+      <li><a href="/" class="{{ 'active' if request.path == '/' }}">Inicio</a></li>
+      <li><a href="/catalogo" class="{{ 'active' if request.path.startswith('/catalogo') or request.path.startswith('/auto/') }}">Catálogo</a></li>
+    </ul>
+
+    {% if request.path.startswith('/catalogo') %}
+    <form class="navbar-search" action="/catalogo" method="GET">
+      <i class="fa fa-search search-icon"></i>
+      <input
+        type="search"
+        name="buscar"
+        placeholder="Buscar marca, modelo..."
+        value="{{ request.args.get('buscar', '') }}"
+        autocomplete="off">
+    </form>
+    {% endif %}
+
+    <a href="/login" class="btn-admin-nav">
+      <i class="fa fa-lock" style="margin-right:6px;font-size:11px;"></i>Admin
+    </a>
+
+  </div>
+</nav>
+
+<!-- ========== MAIN CONTENT ========== -->
+{% block contenido %}{% endblock %}
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <div class="footer-brand-col">
+        <span class="footer-logo">Auto<em>Dealer</em></span>
+        <p>Tu concesionaria de confianza. Encuentra el auto perfecto entre nuestra selección de vehículos premium y de alta calidad.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Explorar</h4>
+        <ul>
+          <li><a href="/">Inicio</a></li>
+          <li><a href="/catalogo">Catálogo completo</a></li>
+          <li><a href="/catalogo?combustible=Eléctrico">Autos eléctricos</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Marcas</h4>
+        <ul>
+          <li><a href="/catalogo?buscar=Toyota">Toyota</a></li>
+          <li><a href="/catalogo?buscar=BMW">BMW</a></li>
+          <li><a href="/catalogo?buscar=Ford">Ford</a></li>
+          <li><a href="/catalogo?buscar=Honda">Honda</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="#"><i class="fa fa-phone" style="margin-right:6px;"></i>+52 55 1234 5678</a></li>
+          <li><a href="#"><i class="fa fa-envelope" style="margin-right:6px;"></i>info@autodealer.mx</a></li>
+          <li><a href="#"><i class="fa fa-map-marker" style="margin-right:6px;"></i>Ciudad de México</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2024 AutoDealer Pro. Todos los derechos reservados.</span>
+      <span style="color: var(--text-3);">Diseñado con ❤️ para los amantes del automovilismo</span>
+    </div>
+
+  </div>
+</footer>
+
+<!-- ========== SCRIPTS ========== -->
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

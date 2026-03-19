@@ -1,0 +1,168 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Editar Auto — AutoDealer Admin{% endblock %}
+{% block page_title %}Editar Auto{% endblock %}
+
+{% block contenido %}
+
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:13px;color:var(--text-3);">
+  <a href="/admin" style="color:var(--text-3);text-decoration:none;">Dashboard</a>
+  <i class="fa fa-chevron-right" style="font-size:10px;"></i>
+  <span style="color:var(--gold);">Editar: {{ auto['marca'] }} {{ auto['modelo'] }}</span>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+
+  <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:24px;max-width:1000px;">
+
+    <!-- Main Info -->
+    <div>
+      <div class="form-card" style="max-width:none;">
+        <div class="form-section-title">Información del vehículo</div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label>Marca *</label>
+            <input type="text" name="marca" class="form-input"
+                   value="{{ auto['marca'] }}" required>
+          </div>
+          <div class="form-field">
+            <label>Modelo *</label>
+            <input type="text" name="modelo" class="form-input"
+                   value="{{ auto['modelo'] }}" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label>Año</label>
+            <input type="number" name="anio" class="form-input"
+                   value="{{ auto['anio'] or '' }}" min="1990" max="2030">
+          </div>
+          <div class="form-field">
+            <label>Precio (MXN) *</label>
+            <input type="number" name="precio" class="form-input"
+                   value="{{ auto['precio'] }}" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label>Kilometraje</label>
+            <input type="number" name="kilometraje" class="form-input"
+                   value="{{ auto['kilometraje'] or '' }}" min="0">
+          </div>
+          <div class="form-field">
+            <label>Combustible</label>
+            <select name="combustible" class="form-select">
+              <option value="Gasolina" {{ 'selected' if auto['combustible'] == 'Gasolina' }}>Gasolina</option>
+              <option value="Diesel" {{ 'selected' if auto['combustible'] == 'Diesel' }}>Diesel</option>
+              <option value="Eléctrico" {{ 'selected' if auto['combustible'] == 'Eléctrico' }}>Eléctrico</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Transmisión</label>
+          <select name="transmision" class="form-select">
+            <option value="Manual" {{ 'selected' if auto['transmision'] == 'Manual' }}>Manual</option>
+            <option value="Automática" {{ 'selected' if auto['transmision'] == 'Automática' }}>Automática</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Descripción</label>
+          <textarea name="descripcion" class="form-textarea">{{ auto['descripcion'] or '' }}</textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: Image + Destacado -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Current Image -->
+      <div class="form-card" style="max-width:none;">
+        <div class="form-section-title">Imagen del vehículo</div>
+
+        {% if auto['imagen'] and auto['imagen'] != 'default.jpg' %}
+        <div style="margin-bottom:12px;">
+          <p style="font-size:11px;color:var(--text-3);margin-bottom:8px;">Imagen actual:</p>
+          <img src="{{ url_for('static', filename='img/autos/' + auto['imagen']) }}"
+               style="width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"
+               id="currentImg">
+        </div>
+        {% endif %}
+
+        <div class="form-field">
+          <label style="display:block;font-size:12px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--text-2);margin-bottom:8px;">
+            Cambiar fotografía (opcional)
+          </label>
+          <div class="file-upload-area" onclick="document.getElementById('imagenInput').click()">
+            <div class="upload-icon">📸</div>
+            <p>Haz clic para cambiar imagen</p>
+            <p style="font-size:11px;margin-top:6px;">JPG, PNG, WEBP · Máx 5MB</p>
+            <input type="file" id="imagenInput" name="imagen" accept="image/*"
+                   style="position:absolute;opacity:0;width:0;height:0;"
+                   onchange="previewImage(this)">
+          </div>
+          <div id="previewWrap" style="margin-top:12px;display:none;">
+            <img id="previewImg" style="width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid var(--border);">
+          </div>
+        </div>
+      </div>
+
+      <!-- Destacado Toggle -->
+      <div class="form-card" style="max-width:none;">
+        <div class="form-section-title">Visibilidad</div>
+        <div class="toggle-wrap">
+          <label class="toggle-switch" for="destacadoCheck">
+            <input type="checkbox" id="destacadoCheck" name="destacado" value="1"
+                   {{ 'checked' if auto['destacado'] }}>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+          <div>
+            <label for="destacadoCheck" style="font-family:'Exo 2',sans-serif;font-weight:700;font-size:14px;color:var(--text);display:block;cursor:pointer;">
+              Marcar como destacado
+            </label>
+            <p style="font-size:12px;color:var(--text-3);margin:2px 0 0;">
+              Aparecerá en el inicio y catálogo destacados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="margin-top:24px;display:flex;gap:12px;max-width:1000px;">
+    <button type="submit" class="btn btn-gold">
+      <i class="fa fa-save"></i>
+      Guardar cambios
+    </button>
+    <a href="/admin" class="btn btn-outline">
+      <i class="fa fa-times"></i>
+      Cancelar
+    </a>
+  </div>
+
+</form>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('previewImg').src = e.target.result;
+      document.getElementById('previewWrap').style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

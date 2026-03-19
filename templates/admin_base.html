@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin — AutoDealer Pro{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="admin-sidebar" id="adminSidebar">
+
+    <a href="/" class="sidebar-brand">
+      <span class="sb-icon" style="background:#000; width:48px; height:48px; padding:2px;">
+  <img src="{{ url_for('static', filename='img/logo.png') }}"
+       style="width:100%; height:100%; object-fit:contain;">
+</span>
+      <span>Auto<span style="color:var(--gold-light)">Dealer</span></span>
+    </a>
+
+    <div class="sidebar-section-label">Panel</div>
+
+    <nav class="sidebar-nav">
+
+      <a href="/admin"
+         class="sidebar-link {{ 'active' if request.path == '/admin' }}">
+        <i class="fa fa-chart-bar"></i>
+        Dashboard
+      </a>
+
+      <a href="/agregar"
+         class="sidebar-link {{ 'active' if request.path == '/agregar' }}">
+        <i class="fa fa-plus-circle"></i>
+        Agregar Auto
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top:8px;">Inventario</div>
+
+      <a href="/catalogo" target="_blank" class="sidebar-link">
+        <i class="fa fa-external-link-alt"></i>
+        Ver Catálogo
+      </a>
+
+      <a href="/" target="_blank" class="sidebar-link">
+        <i class="fa fa-eye"></i>
+        Ver Sitio
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="su-name">{{ session.get('username', 'Admin') | capitalize }}</div>
+          <div class="su-role">Administrador</div>
+        </div>
+      </div>
+      <a href="/logout" class="sidebar-link" style="color: #f87171;">
+        <i class="fa fa-sign-out-alt"></i>
+        Cerrar sesión
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <div class="admin-main">
+
+    <div class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="toggleSidebar()" class="btn btn-outline btn-sm"
+                style="padding:6px 10px;display:none;" id="menuBtn">
+          <i class="fa fa-bars"></i>
+        </button>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+      </div>
+      <div class="admin-topbar-right">
+        <span class="topbar-badge">
+          <i class="fa fa-shield-alt" style="margin-right:5px;"></i>Panel Admin
+        </span>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      {% block contenido %}{% endblock %}
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script>
+function toggleSidebar() {
+  document.getElementById('adminSidebar').classList.toggle('open');
+}
+// Show menu button on mobile
+if (window.innerWidth < 900) {
+  document.getElementById('menuBtn').style.display = 'flex';
+}
+</script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

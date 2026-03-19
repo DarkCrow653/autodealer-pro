@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+
+# Entornos virtuales
+venv/
+env/
+.env/
+.venv/
+
+# Variables de entorno (¡NUNCA subir al repo!)
+.env
+.env.local
+.env.production
+
+# Base de datos local (se auto-genera en Render)
+# Descomenta la siguiente línea si NO quieres incluir la DB en git:
+# database.db
+
+# Imágenes subidas por usuarios (no persistentes en Render)
+# static/img/autos/*.jpg   ← comentado para conservar las de ejemplo
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
